@@ -1,11 +1,16 @@
 from contextlib import asynccontextmanager
-from fastapi import FastAPI
-import uvicorn
 import logging
+import time
+from fastapi import FastAPI, Request
+import uvicorn
 
 from orderservice.api.routers import router
 from orderservice.kafka.producer import get_producer
 
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s %(levelname)s %(name)s - %(message)s",
+)
 logger = logging.getLogger(__name__)
 
 
@@ -34,6 +39,20 @@ app = FastAPI(
     version="1.0.0",
     lifespan=lifespan
 )
+
+@app.middleware("http")
+async def request_logging_middleware(request: Request, call_next):
+    start = time.perf_counter()
+    response = await call_next(request)
+    duration_ms = (time.perf_counter() - start) * 1000
+    logger.info(
+        "HTTP %s %s -> %s (%.1fms)",
+        request.method,
+        request.url.path,
+        response.status_code,
+        duration_ms,
+    )
+    return response
 
 
 app.include_router(router, prefix="/api", tags=["orders"])

@@ -20,7 +20,7 @@ async def create_order(order: OrderCreate) -> OrderAccepted:
     
     order_data = order.model_dump()
     
-    success = producer.publish_order(order_data)
+    success = producer.publish_async(order_data)
     
     if not success:
         logger.error(f"Не удалось отправить заказ {order.order_id} в Kafka")
