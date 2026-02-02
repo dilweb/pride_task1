@@ -35,7 +35,6 @@ class AsyncOrderProducer:
             try:
                 order = self._q.get(timeout=0.1)
             except queue.Empty:
-                # обслуживаем callbacks, даже если нет новых сообщений
                 self.producer.poll(0)
                 continue
 
@@ -49,7 +48,6 @@ class AsyncOrderProducer:
             except Exception:
                 logger.exception("produce() failed")
             finally:
-                # важно вызывать poll() чтобы callbacks отрабатывали
                 self.producer.poll(0)
                 self._q.task_done()
 
@@ -64,7 +62,6 @@ class AsyncOrderProducer:
     def close(self):
         self._stop.set()
         self._worker.join(timeout=2)
-        # дожидаемся доставки при остановке
         self.producer.flush(timeout=5)
 
 
