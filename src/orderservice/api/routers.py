@@ -7,7 +7,6 @@ from orderservice.kafka.producer import get_producer
 router = APIRouter()
 logger = logging.getLogger(__name__)
 
-
 @router.post("/orders", response_model=OrderAccepted, status_code=status.HTTP_202_ACCEPTED)
 async def create_order(order: OrderCreate) -> OrderAccepted:
     """
