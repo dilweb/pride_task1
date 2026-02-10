@@ -1,5 +1,5 @@
 ﻿from decimal import Decimal
-from datetime import datetime, timezone
+from datetime import datetime
 from typing import Literal
 from uuid import UUID
 

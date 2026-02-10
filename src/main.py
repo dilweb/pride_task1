@@ -1,4 +1,3 @@
-
 import asyncio
 from contextlib import asynccontextmanager
 import logging
@@ -11,6 +10,9 @@ import uvicorn
 
 from orderservice.api.routers import router
 from orderservice.kafka.producer import get_producer
+
+from db.base import close_db
+
 
 logging.basicConfig(
     level=logging.INFO,
@@ -60,6 +62,7 @@ async def lifespan(app: FastAPI):
 
     logger.info("Order Service завершает работу...")
     await producer.stop()
+    await close_db()
     logger.info("Order Service остановлен")
 
 
