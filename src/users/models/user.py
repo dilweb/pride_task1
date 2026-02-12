@@ -5,7 +5,7 @@ from src.db.base import Base
 class User(Base):
     __tablename__ = "users"
 
-    id: Mapped[int] = mapped_column(primary_key=True)
+    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True, index=True)
     phone_number: Mapped[str]
     first_name: Mapped[str]
     last_name: Mapped[str]

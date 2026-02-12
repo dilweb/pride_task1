@@ -12,7 +12,7 @@ from orderservice.api.routers import router
 from orderservice.kafka.producer import get_producer
 
 from db.base import close_db
-
+from users.auth.router import router as auth_router
 
 logging.basicConfig(
     level=logging.INFO,
@@ -73,6 +73,7 @@ app = FastAPI(
 )
 
 
+
 @app.middleware("http")
 async def request_logging_middleware(request: Request, call_next):
     start = time.perf_counter()
@@ -87,8 +88,8 @@ async def request_logging_middleware(request: Request, call_next):
     )
     return response
 
-
 app.include_router(router, prefix="/api", tags=["orders"])
+app.include_router(auth_router, prefix="/auth", tags=["auth"])
 
 
 def start_app():

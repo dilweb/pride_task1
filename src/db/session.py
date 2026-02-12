@@ -3,7 +3,6 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from db.base import AsyncSessionLocal
 
 
-@asynccontextmanager
 async def get_session() -> AsyncSession:
     session = AsyncSessionLocal()
     try:

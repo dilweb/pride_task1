@@ -1,20 +1,55 @@
-from fastapi import APIRouter, HTTPException, status
-from src.users.auth.auth import get_password_hash
-from src.users.auth.schemas import SUserRegister
-from users.dao import get_user_by_id
+from fastapi import APIRouter, HTTPException, status, Depends
+from sqlalchemy.ext.asyncio import AsyncSession
 
-router = APIRouter(prefix='/auth', tags=['Auth'])
+from typing import List
+
+from src.users.auth.schemas import SUserRegister, UserOut
+from src.users.dao import UserDAO 
+from src.db.session import get_session
+
+
+router = APIRouter()
 
 
 @router.post("/register/")
-async def register_user(user_data: SUserRegister) -> dict:
-    user = await get_user_by_id.find_one_or_none(email=user_data.email)
+async def register_user(user_data: SUserRegister, session: AsyncSession = Depends(get_session)) -> UserOut:
+    user_dao = UserDAO(session)
+    
+    user = await user_dao.get_user_by_email(email=user_data.email)
     if user:
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
             detail='Пользователь уже существует'
         )
-    user_dict = user_data.dict()
-    user_dict['password'] = get_password_hash(user_data.password)
-    await UsersDAO.add(**user_dict)
-    return {'message': 'Вы успешно зарегистрированы!'}
+
+    new_user = await user_dao.create_user(user=user_data)
+    
+    return new_user
+
+
+@router.get("/get_user/{id}")
+async def get_user_by_id(user_id: int, session: AsyncSession = Depends(get_session)) -> UserOut:
+    user_dao = UserDAO(session)
+    
+    user = await user_dao.get_user_by_id(id=user_id)
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail='Пользователь не найден'
+        )
+    
+    return user
+
+
+@router.get("/get_users_list/")
+async def get_user_by_id(session: AsyncSession = Depends(get_session)) -> List[UserOut]:
+    user_dao = UserDAO(session)
+    
+    users_list = await user_dao.get_users_list()
+    if not users_list:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail='Пользователи не найдены'
+        )
+    
+    return users_list

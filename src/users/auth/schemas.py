@@ -2,10 +2,19 @@ from pydantic import BaseModel, EmailStr, Field, validator
 import re
 
 
+class UserOut(BaseModel):
+    id: int
+    email: EmailStr 
+    password: str 
+    phone_number: str 
+    first_name: str 
+    last_name: str 
+
+
 class SUserRegister(BaseModel):
-    email: EmailStr = Field(..., description="Электронная почта")
+    email: EmailStr = Field(..., description="Электронная почта", unique=True)
     password: str = Field(..., min_length=5, max_length=50, description="Пароль, от 5 до 50 знаков")
-    phone_number: str = Field(..., description="Номер телефона в международном формате, начинающийся с '+'")
+    phone_number: str = Field(..., description="Номер телефона в международном формате, начинающийся с '+'", unique=True)
     first_name: str = Field(..., min_length=3, max_length=50, description="Имя, от 3 до 50 символов")
     last_name: str = Field(..., min_length=3, max_length=50, description="Фамилия, от 3 до 50 символов")
 
